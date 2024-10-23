@@ -1,0 +1,54 @@
+#!/usr/bin/env bash
+
+# PAM auth helper used by RStudio
+export RSTUDIO_AUTH="${PWD}/bin/auth"
+
+# Generate an `rsession` wrapper script
+export RSESSION_WRAPPER_FILE="${PWD}/rsession.sh"
+
+cat > "${RSESSION_WRAPPER_FILE}" << EOF
+#!/usr/bin/env bash
+export RSESSION_LOG_FILE="${PWD}/rsession.log"
+exec &>>"\${RSESSION_LOG_FILE}"
+export OMP_NUM_THREADS="${SLURM_JOB_CPUS_PER_NODE}"
+export R_LIBS_USER="${OOD_R_LIBS_USER}"
+echo "Starting rsession..."
+exec /usr/lib/rstudio-server/bin/rsession "\${@}"
+EOF
+
+chmod 700 "${RSESSION_WRAPPER_FILE}"
+
+# Temporary RStudio directory setup:
+export TMPDIR=`mktemp -d`
+
+# Temporary RStudio database setup:
+TMP_DB="${TMPDIR}/database.conf"
+DB_PATH="/etc/rstudio/database.conf"
+cat > ${TMP_DB} << EOF
+provider=sqlite
+directory=/var/lib/rstudio-server
+EOF
+
+# Temporary RStudio /var/lib setup:
+LIB_RSERVER="/var/lib/rstudio-server"
+TMP_LIB_RSERVER="${TMPDIR}/${LIB_RSERVER}"
+mkdir -p ${TMP_LIB_RSERVER}
+
+## fix rstudio active session error on start
+find ~/.rstudio/sessions/active/*/session-persistent-state -type f | xargs sed -i '' -e 's/abend="1"/abend="0"/'
+
+export APPTAINERENV_RSTUDIO_SESSION_TIMEOUT=0
+
+# Launch RStudio Server:
+echo "Starting rserver..."
+
+apptainer exec --home="${HOME}" \
+ --bind="${TMPDIR}:/tmp,${TMPDIR}:/run,${TMP_LIB_RSERVER}:${LIB_RSERVER},${TMP_DB}:${DB_PATH}" \
+ "${RSTUDIO_APPTAINER_IMAGE}" /usr/lib/rstudio-server/bin/rserver \
+ --www-port="${port}" \
+ --auth-none=0 \
+ --auth-pam-helper-path="${RSTUDIO_AUTH}" \
+ --auth-encrypt-password=0 \
+ --rsession-path="${RSESSION_WRAPPER_FILE}" \
+ --server-app-armor-enabled=0 \
+ --server-user="${USER}"

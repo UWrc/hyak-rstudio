@@ -1,0 +1,121 @@
+<%-
+  accounts = OodAppkit.clusters[:klone].custom_config[:accounts]
+  hyakparts = OodAppkit.clusters[:klone].custom_config[:hyakparts]
+  ckptgpus = OodAppkit.clusters[:klone].custom_config[:ckptgpus]
+  my_accounts = {}
+  accounts.each do |a, v|
+    my_accounts[a] = v if v["users"].include? User.new.name
+  end
+-%>
+---
+cluster: "klone"
+
+attributes:
+  haccount:
+    label: Account
+    help: Please select an account from the drop-down.
+    widget: select
+    options:
+      <%- my_accounts.each do |a, v| -%>
+      - [ "<%= a %>", "<%= a %>" ]
+     <%- end -%>
+  hqueue:
+    label: Partition
+    help: Please select a partition from the drop-down.
+    widget: select
+    options:
+      - [ 'ckpt', 'ckpt',
+          data-set-hgputype: 'none',
+          data-set-hgpus: 0,
+          data-hide-hgpus: true,
+        ]
+      <%- hyakparts.each do |p| -%>
+      - [
+        "<%= p %>", "<%= p %>",
+        <%- my_accounts.each do |a, v|
+        if not v["partitions"].include? p -%>
+        data-option-for-haccount-<%= a %>: "false",
+        <%- end
+        end -%>
+        data-set-hgputype: "<%= p["gpu"] ? p.sub('gpu-', '') : 'none' %>",
+        data-hide-hgputype: true,
+        <%- if not p["gpu"] -%>
+        data-set-hgpus: 0,
+        data-hide-hgpus: true
+        <%- end -%>
+        ]
+      <%- end -%>
+  htasks:
+    label: Tasks
+    widget: number_field
+    value: 1
+  hcpus:
+    label: CPUs per task
+    widget: number_field
+    value: 1
+  hmem:
+    label: Memory (GB)
+    value: 1
+  hgputype:
+    label: GPU Type
+    widget: select
+    options:
+      - [ "None", "none", data-set-hgpus: 0, data-hide-hgpus: true ]
+      - [ "Any", "", data-set-hgpus: 0 ]
+      <%- ckptgpus.each do |k, v| -%>
+      - [ "<%= v %>", "<%= k %>" ]
+      <%- end -%>
+  hgpus:
+    label: GPUs
+    widget: number_field
+    min: 0
+    max: 8
+    value: 0
+  sif:
+    label: RStudio Server Container
+    widget: select
+    help: Select 'Custom' if you have created your own RStudio-Server Apptainer image.
+    options:
+    - [
+        "rocker/rstudio",
+        "/mmfs1/sw/ondemand/containers/rstudio/rocker-rstudio",
+        data-hide-custom-sif: true
+      ]
+    - [
+        "rocker/geospatial",
+        "/mmfs1/sw/ondemand/containers/rstudio/rocker-geospatial",
+        data-hide-custom-sif: true
+      ]
+    - [
+        "rocker/tidyverse",
+        "/mmfs1/sw/ondemand/containers/rstudio/rocker-tidyverse",
+        data-hide-custom-sif: true
+      ]
+    - [
+        "rocker/verse",
+        "/mmfs1/sw/ondemand/containers/rstudio/rocker-verse",
+        data-hide-custom-sif: true
+      ]
+    - [ "Custom", "" ]
+    value: "Default"
+  custom_sif:
+    label: Full path to your customized RStudio-Server Apptainer image.
+    help: "e.g. /mmfs1/gscratch/labname/containers/my_rstudio_server.sif"
+  r_libs_user:
+    label: "User R library path (R_LIBS_USER)"
+    help: |
+      If left blank, will default to ${HOME}/R/ood-rstudio/. More information here:
+      https://rstudio.github.io/r-manuals/r-admin/Add-on-packages.html#managing-libraries
+
+form:
+  - haccount
+  - hqueue
+  - sif
+  - custom_sif
+  - r_libs_user
+  - htasks
+  - hcpus
+  - hmem
+  - hgputype
+  - hgpus
+  - bc_num_hours
