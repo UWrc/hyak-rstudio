@@ -29,6 +29,16 @@ attributes:
           data-set-hgpus: 0,
           data-hide-hgpus: true,
         ]
+      - [ 'ckpt-g2', 'ckpt-g2',
+          data-set-hgputype: 'none',
+          data-set-hgpus: 0,
+          data-hide-hgpus: true,
+        ]
+      - [ 'ckpt-all', 'ckpt-all',
+          data-set-hgputype: 'none',
+          data-set-hgpus: 0,
+          data-hide-hgpus: true,
+        ] 
       <%- hyakparts.each do |p| -%>
       - [
         "<%= p %>", "<%= p %>",
@@ -108,8 +118,10 @@ attributes:
       https://rstudio.github.io/r-manuals/r-admin/Add-on-packages.html#managing-libraries
 
 form:
-  - haccount
-  - hqueue
+#  - haccount
+#  - hqueue
+  - auto_accounts
+  - auto_queues
   - sif
   - custom_sif
   - r_libs_user
