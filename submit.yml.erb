@@ -5,8 +5,8 @@ batch_connect:
     - csrftoken
 
 script:
-  queue_name: "<%= auto_queues %>"
-  accounting_id: "<%= auto_accounts %>"
+  queue_name: "<%= hqueue %>"
+  accounting_id: "<%= haccount %>"
   native:
     - "--ntasks"
     - "<%= htasks.blank? ? 1 : htasks.to_i %>"

@@ -20,9 +20,6 @@ attributes:
       - [ "<%= a %>", "<%= a %>" ]
      <%- end -%>
   hqueue:
-    label: Partition
-    help: Please select a partition from the drop-down.
-    widget: select
     options:
       - [ 'ckpt', 'ckpt',
           data-set-hgputype: 'none',
@@ -30,15 +27,15 @@ attributes:
           data-hide-hgpus: true,
         ]
       - [ 'ckpt-g2', 'ckpt-g2',
-          data-set-hgputype: 'none',
+          data-set-hgputype: 'l40s',
+          data-hide-hgputype: 'true',
           data-set-hgpus: 0,
-          data-hide-hgpus: true,
         ]
       - [ 'ckpt-all', 'ckpt-all',
           data-set-hgputype: 'none',
           data-set-hgpus: 0,
           data-hide-hgpus: true,
-        ] 
+        ]
       <%- hyakparts.each do |p| -%>
       - [
         "<%= p %>", "<%= p %>",
@@ -73,7 +70,11 @@ attributes:
       - [ "None", "none", data-set-hgpus: 0, data-hide-hgpus: true ]
       - [ "Any", "", data-set-hgpus: 0 ]
       <%- ckptgpus.each do |k, v| -%>
-      - [ "<%= v %>", "<%= k %>" ]
+      - [ "<%= v %>", "<%= k %>",
+        <%- if k == "l40s" -%>
+        data-option-for-hqueue-ckpt: "false",
+        <%- end -%>
+        ]
       <%- end -%>
   hgpus:
     label: GPUs
@@ -118,10 +119,8 @@ attributes:
       https://rstudio.github.io/r-manuals/r-admin/Add-on-packages.html#managing-libraries
 
 form:
-#  - haccount
-#  - hqueue
-  - auto_accounts
-  - auto_queues
+  - haccount
+  - hqueue
   - sif
   - custom_sif
   - r_libs_user
