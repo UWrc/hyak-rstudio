@@ -1,7 +1,8 @@
 <%-
   accounts = OodAppkit.clusters[:klone].custom_config[:accounts]
   hyakparts = OodAppkit.clusters[:klone].custom_config[:hyakparts]
-  ckptgpus = OodAppkit.clusters[:klone].custom_config[:ckptgpus]
+  g1gpus = OodAppkit.clusters[:klone].custom_config[:g1gpus]
+  g2gpus = OodAppkit.clusters[:klone].custom_config[:g2gpus]
   my_accounts = {}
   accounts.each do |a, v|
     my_accounts[a] = v if v["users"].include? User.new.name
@@ -69,11 +70,14 @@ attributes:
     options:
       - [ "None", "none", data-set-hgpus: 0, data-hide-hgpus: true ]
       - [ "Any", "", data-set-hgpus: 0 ]
-      <%- ckptgpus.each do |k, v| -%>
+      <%- g1gpus.each do |k, v| -%>
       - [ "<%= v %>", "<%= k %>",
-        <%- if k == "l40s" -%>
+        data-option-for-hqueue-ckpt-g2: "false",
+        ]
+      <%- end -%>
+      <%- g2gpus.each do |k, v| -%>
+      - [ "<%= v %>", "<%= k %>",
         data-option-for-hqueue-ckpt: "false",
-        <%- end -%>
         ]
       <%- end -%>
   hgpus:
