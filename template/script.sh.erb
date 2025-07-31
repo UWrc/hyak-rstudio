@@ -11,7 +11,7 @@ cat > "${RSESSION_WRAPPER_FILE}" << EOF
 export RSESSION_LOG_FILE="${PWD}/rsession.log"
 exec &>>"\${RSESSION_LOG_FILE}"
 export OMP_NUM_THREADS="${SLURM_JOB_CPUS_PER_NODE}"
-export R_LIBS_USER="${OOD_R_LIBS_USER}"
+export R_LIBS_USER="$(realpath ${OOD_R_LIBS_USER})"
 echo "Starting rsession..."
 exec /usr/lib/rstudio-server/bin/rsession "\${@}"
 EOF
