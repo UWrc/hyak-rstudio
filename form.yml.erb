@@ -89,6 +89,19 @@ attributes:
     min: 0
     max: 8
     value: 0
+  num_hours:
+    widget: "number_field"
+    label: "Number of hours"
+    value: 1
+    min: 0
+    display: true
+  num_mins:
+    widget: "number_field"
+    label: "Number of minutes"
+    value: 0
+    min: 0
+    max: 59
+    display: true
   sif:
     label: RStudio Server Container
     widget: select
@@ -136,4 +149,5 @@ form:
   - hmem
   - hgputype
   - hgpus
-  - bc_num_hours
+  - num_hours
+  - num_mins
