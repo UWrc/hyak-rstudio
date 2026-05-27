@@ -14,6 +14,8 @@ script:
     - "<%= hcpus.blank? ? 1 : hcpus.to_i %>"
     - "--mem"
     - "<%= hmem.blank? ? 1 : hmem.to_i %>GB"
+    - "--time"
+    - "<%= num_hours %>:<%= num_mins %>:00"
     <%- if hgpus.to_i > 0 -%>
     - "--gpus"
     - "<%= hgputype.blank? ? hgpus : hgputype + ":" + hgpus %>"
